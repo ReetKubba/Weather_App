@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #87CEEB;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+        .forecast-box {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            flex: 1;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Weather Forecast for <span id="cityName"></span></h1>
+    <div id="forecastOutput"></div>
+    <script>
+        async function fetchWeather(city) {
+            try {
+                const response = await fetch(`/weather/${city}`);
+                if (!response.ok) {
+                    alert('Error fetching data from server. Check server logs.');
+                    return;
+                }
+                const data = await response.json();
+                let output = '<div class="row">';
+                for (let i = 0; i < data.length; i++) {
+                    if (i === 3) output += '</div><div class="row">';  
+                    output += `
+                        <div class="forecast-box">
+                            Temperature: ${data[i].Temperature}°C<br>
+                            Wind Speed: ${data[i].WindSpeed}<br>
+                            Rain Percentage: ${data[i].RainPercentage}<br>
+                            Suggestion: ${data[i].Umbrella}<br>
+                            Clothes: ${data[i].Clothes}<br>
+                            Mask: ${data[i].MaskAdvice}
+                        </div>
+                    `;
+                    if (i === data.length - 1) output += '</div>';  // close the row div
+                }
+                document.getElementById('forecastOutput').innerHTML = output;
+            } catch (error) {
+                console.error("Error in fetchWeather:", error); // Log client errors
+                alert('Error fetching or processing data. Check the console.');
+            }
+        }
+
+        function getQueryParams() {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get('city');
+        }
+
+        window.onload = function() {
+            const city = getQueryParams();
+            document.getElementById('cityName').textContent = city;
+            fetchWeather(city);
+        }
+    </script>
+</body>
+</html>
